@@ -6,74 +6,101 @@ DATOTEKA_S_STANJEM = "stanje.json"
 NEOZNACENO = "n"
 KRIZEC = "x"
 KROG = "o"
-MALI_ZMAGA = "mz"
-MALI_PORAZ = "mp"
-MALI_IZENACENO = "mi"
-IZENACENO = "I"
-PORAZ = "P"
-ZMAGA = "Z"
+ZMAGA = "z"
+PORAZ = "p"
+NEDOLOCENO = "nd"
+POLNO = "f"
 
 class Kvadrat:
-    #mamo slovar {polje:simbol}, tko nm je podan kvadratek
-    def __init__(self, simboli=None):
+    
+    #na zacetku je izid nedoloceno, potem pa ali zmaga ali poraz
+    #simboli je slovar {polje:simbol}, kjer je polje 0 do 8, simbol pa krizec/krog/neoznaceno
+    #lahko so usa mesta zapolnjena ne glede na izid, ce so polna je variable=1, ce ne pa =0
+    def __init__(self, izid=None, simboli=None):
         if simboli is None:
             simboli = {}
             for i in range(9):
                 self.simboli[i] = NEOZNACENO
         else:
             self.simboli = simboli
+        if izid is None:
+            self.izid = NEDOLOCENO
+        else:
+            self.izid = izid
     
-    #seznam zasedenih polj (da lah pol ko bom buttone delala sam disabelam use zasedene)        
-    def zasedena_polja(self):
-        zasedena = []
+    #seznam nezasedenih polj (da lah pol ko bom buttone delala sam disabelam use zasedene)        
+    def nezasedena_polja(self):
+        nezasedena = []
         for i in range(9):
-            if self.simboli[i] != NEOZNACENO:
-                zasedena.append(i)
-        return zasedena
+            if self.simboli[i] == NEOZNACENO:
+                nezasedena.append(i)
+        return nezasedena
         
     #polje je neka stevilka od 0 do 8 in tam se simbol zamenja z krizcem
-    #(a morm ze zdej kej rect o nezasedenosti polja al bom pol to sam z buttoni uredila)
+    #uporabnik bo meu na voljo samo nezasedena polja
     def izberi_polje(self, polje):
         self.simboli[polje] = KRIZEC
     
     #izmed nezasedenih randomly izberemo 
     def odziv(self):
-        nezasedena = []
-        for i in range(9):
-            if i not in self.zasedena_polja:
-                nezasedena.append(i)
-        polje = random.choice(nezasedena)
+        polje = random.choice(self.nezasedena_polja())
         self.simboli[polje] = KROG
         
     #preverimo najprej ce use ujema ksna od vrstic, pol ksn od stolpcev, pol ksn na diagonali
-    #na konc se prevermo ce so ze usa mesta zasedena   
-    def izid(self):
-        izid = {KRIZEC:MALI_ZMAGA, KROG:MALI_PORAZ}
-        for i in [KRIZEC, KROG]:
-            for j in range(0,9,3):
-                if self.simboli[j] == self.simboli[j+1] == self.simboli[j+2] == i:
+    def getizid(self):
+        if self.izid != NEDOLOCENO: return self.izid
+        else:
+            izid = {KRIZEC:ZMAGA, KROG:PORAZ}
+            for i in [KRIZEC, KROG]:
+                #vrstice 012, 345, 678
+                for j in range(0,9,3):
+                    if self.simboli[j] == self.simboli[j+1] == self.simboli[j+2] == i:
+                        self.izid = izid[i]
+                        return izid[i]
+                #stolpci 036, 147, 258
+                for j in range(3):
+                    if self.simboli[j] == self.simboli[j+3] == self.simboli[j+6] == i:
+                        self.izid = izid[i]
+                        return izid[i]
+                #diagonali
+                if self.simboli[0] == self.simboli[4] == self.simboli[8] == i or self.simboli[2] == self.simboli[4] == self.simboli[6] == i:
+                    self.izid = izid[i]
                     return izid[i]
-            for j in range(3):
-                if self.simboli[j] == self.simboli[j+3] == self.simboli[j+6] == i:
-                    return izid[i]
-            if self.simboli[0] == self.simboli[4] == self.simboli[8] == i or self.simboli[2] == self.simboli[4] == self.simboli[6] == i:
-                return izid[i]
-        prazna_mesta = 0
-        for i in range(9):
-            if self.simboli[i] == NEOZNACENO:
-                prazna_mesta += 1
-        if prazna_mesta == 0:
-            return MALI_IZENACENO
-                
-            
-                
-            
-            
-            
-            
+
+    #preverimo, ce je ze use zasedeno
+    def je_polno(self):
+        polno = 0
+        if self.nezasedena_polja() == []:
+            spolno += 1
+        return polno
+
 
 class Igra:
+
+    #kvadrati je seznam 9 kvadratov (po vrsti), zacnemo z default kvadrati
+    def __init__(self, kvadrati=None):
+        if kvadrati is None:
+            self.kvadrati = []
+            for i in range(9):
+                self.kvadrati[i] = Kvadrat()
+        else:
+            self.kvadrati = kvadrati
+            
+    #kvadrat v katerem trenutno igramo, podan s stevilkami od 0 do 8
+    #ce je zacetek igre mi imputamo kvadrat, ce ne pa nas preusmeri
+    def trenutni_kvadrat(self, kvadrat):
+        pass
     
-    def __init__(self, izbrana_polja, odzivi):
-        self.izbrana_polja = izbrana_polja
-        self.odzivi = odzivi
+    #izberes polje v trenutnem kvadatu
+    def igraj(self, kvadrat, polje):
+        self.kvadrati[kvadrat].izberi_polje(polje)
+        
+    #odziv racunalnika
+    def odziv(self):
+        kvadrat = random.choice(range(9))
+        self.kvadrati[kvadrat].odziv()
+
+    #izid celotne igre
+    def izid(self):
+        pass
+    
