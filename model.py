@@ -1,15 +1,16 @@
-from curses import noecho
 import json
 import random
+
 DATOTEKA_S_STANJEM = "stanje.json"
 
 NEOZNACENO = "n"
 KRIZEC = "x"
 KROG = "o"
-ZMAGA = "z"
-PORAZ = "p"
+ZMAGA = "w"
+PORAZ = "l"
 NEDOLOCENO = "nd"
 POLNO = "f"
+ZACETEK = "z"
 
 class Kvadrat:
     
@@ -102,5 +103,52 @@ class Igra:
 
     #izid celotne igre
     def izid(self):
-        pass
+        for i in [ZMAGA, PORAZ]:
+            #vrstice 012, 345, 678
+            for j in range(0,9,3):
+                if self.kvadrati[j].getizid() == self.kvadrati[j+1].getizid() == self.kvadrati[j+2].getizid() == i:
+                    return i
+            #stolpci 036, 147, 258
+            for j in range(3):
+                if self.kvadrati[j].getizid() == self.kvadrati[j+3].getizid() == self.kvadrati[j+6].getizid() == i:
+                    return i
+            #diagonali
+            if self.kvadrati[0].getizid() == self.kvadrati[4].getizid() == self.kvadrati[8].getizid() == i or self.kvadrati[2].getizid() == self.kvadrati[4].getizid() == self.kvadrati[6].getizid() == i:
+                return i
+            
+class KrizciKrozci:
+    datoteka_s_stanjem = DATOTEKA_S_STANJEM
+
+    #placeholder bl k kej druzga
+    def __init__(self):
+        self.igre = {}
+
+    def prost_id_igre(self):
+        if not self.igre:
+            return 0
+        else:
+            return max(self.igre.keys()) + 1
     
+    def nova_igra(self):
+        i = self.prost_id_igre()
+        igra = self.nova_igra()
+        self.igre[i] = (igra, ZACETEK)
+        return i
+    
+    def izberi_polje(self, i, polje):
+        igra, stanje = self.igre[i]
+        stanje = igra.igraj(polje).odziv()
+        self.igre[i] = (igra, stanje)
+
+    def nalozi_igre_iz_datoteke(self):
+        with open(self.datoteka_s_stanjem) as d:
+            zapis = json.load(d)
+        for id_igre, ((geslo, crke), stanje) in zapis.items():
+            self.igre[id_igre] = (Igra(geslo, crke), stanje)
+
+    def zapisi_igre_v_datoteko(self):
+        zapis = {}
+        for id_igre, (igra, stanje) in self.igre.items():
+            zapis[id_igre] = ((igra.kvadrati), stanje)
+        with open(self.datoteka_s_stanjem, "w") as d:
+            json.dump(zapis, d)
