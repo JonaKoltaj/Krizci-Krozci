@@ -21,21 +21,17 @@ def pokazi_igro():
     id_igre = bottle.request.get_cookie('id_igre', secret=SKRIVNOST)
     igra, stanje = krizcikrozci.igre[id_igre]
     plosca = igra.kvadrati()
+    kvadrat = igra.simboli()
 
-    return bottle.template("views/igra.tpl", {'stanje': stanje, 'model': model, 'plosca': plosca})
+    return bottle.template("views/igra.tpl", {'stanje': stanje, 'model': model, 'plosca': plosca, 'kvadrat': kvadrat})
 
 @bottle.post("/igra/")
-def ugibaj():
+def izberi():
     id_igre = bottle.request.get_cookie('id_igre', secret=SKRIVNOST)
-    #kaj je bottle.request.forms??
-    polje = bottle.request.forms.polje
-    krizcikrozci.izberi_polje(id_igre, polje)
+    button = bottle.request.forms.move
+    krizcikrozci.izberi_polje(id_igre, button)
     krizcikrozci.zapisi_igre_v_datoteko()
     return bottle.redirect("/igra/")
-
-@bottle.get("/img/<picture>")
-def slike(picture):
-    return bottle.static_file(picture, root="img")
 
 
 bottle.run(reloader=True, debug=True)

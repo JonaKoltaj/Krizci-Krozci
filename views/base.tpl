@@ -4,8 +4,7 @@
 <head>
     <title>{{title}}</title>
 </head>
-<body style="background-color: pink">
-<h1>Vislice</h1>
+<h1>Križci in Krožci</h1>
 {{!base}}
 </body>
 </html>
