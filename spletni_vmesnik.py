@@ -20,10 +20,8 @@ def nova_igra():
 def pokazi_igro():
     id_igre = bottle.request.get_cookie('id_igre', secret=SKRIVNOST)
     igra, stanje = krizcikrozci.igre[id_igre]
-    plosca = igra.kvadrati()
-    kvadrat = igra.simboli()
 
-    return bottle.template("views/igra.tpl", {'stanje': stanje, 'model': model, 'plosca': plosca, 'kvadrat': kvadrat})
+    return bottle.template("views/igra.tpl", {'stanje': stanje, 'model': model, 'igra': igra})
 
 @bottle.post("/igra/")
 def izberi():

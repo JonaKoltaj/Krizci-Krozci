@@ -10,16 +10,14 @@ ZMAGA = "w"
 PORAZ = "l"
 NEDOLOCENO = "nd"
 POLNO = "f"
-ZACETEK = "z"
 
 class Kvadrat:
     
     #na zacetku je izid nedoloceno, potem pa ali zmaga ali poraz
     #simboli je slovar {polje:simbol}, kjer je polje 0 do 8, simbol pa krizec/krog/neoznaceno
-    #lahko so usa mesta zapolnjena ne glede na izid, ce so polna je variable=1, ce ne pa =0
     def __init__(self, izid=None, simboli=None):
         if simboli is None:
-            simboli = {}
+            self.simboli = []
             for i in range(9):
                 self.simboli[i] = NEOZNACENO
         else:
@@ -29,7 +27,7 @@ class Kvadrat:
         else:
             self.izid = izid
     
-    #seznam nezasedenih polj (da lah pol ko bom buttone delala sam disabelam use zasedene)        
+    #seznam nezasedenih polj       
     def nezasedena_polja(self):
         nezasedena = []
         for i in range(9):
@@ -38,11 +36,11 @@ class Kvadrat:
         return nezasedena
         
     #polje je neka stevilka od 0 do 8 in tam se simbol zamenja z krizcem
-    #uporabnik bo meu na voljo samo nezasedena polja
+    #uporabnik bo mel na voljo samo nezasedena polja
     def izberi_polje(self, polje):
         self.simboli[polje] = KRIZEC
     
-    #izmed nezasedenih randomly izberemo 
+    #izmed nezasedenih nakljucno izberemo
     def odziv(self):
         polje = random.choice(self.nezasedena_polja())
         self.simboli[polje] = KROG
@@ -78,28 +76,23 @@ class Kvadrat:
 
 class Igra:
 
-    #kvadrati je seznam 9 kvadratov (po vrsti), zacnemo z default kvadrati
-    def __init__(self, kvadrati=None):
+    #kvadrati je seznam 9 kvadratov (po vrsti), zacnemo z praznimi kvadrati
+    def __init__(self, kvadrati=None, trenutni_kvadrat=None):
         if kvadrati is None:
             self.kvadrati = []
             for i in range(9):
                 self.kvadrati[i] = Kvadrat()
         else:
             self.kvadrati = kvadrati
-            
-    #kvadrat v katerem trenutno igramo, podan s stevilkami od 0 do 8
-    #ce je zacetek igre mi imputamo kvadrat, ce ne pa nas preusmeri
-    def trenutni_kvadrat(self, kvadrat):
-        pass
+        self.trenutni_kvadrat = trenutni_kvadrat
     
     #izberes polje v trenutnem kvadatu
-    def izberi(self, kvadrat, polje):
-        self.kvadrati[kvadrat].izberi_polje(polje)
+    def izberi(self, polje):
+        self.kvadrati[self.trenutni_kvadrat].izberi_polje(polje)
         
     #odziv racunalnika
     def odziv(self):
-        kvadrat = random.choice(range(9))
-        self.kvadrati[kvadrat].odziv()
+        self.kvadrati[self.trenutni_kvadrat].odziv()
 
     #izid celotne igre
     def izid(self):
@@ -115,28 +108,44 @@ class Igra:
             #diagonali
             if self.kvadrati[0].getizid() == self.kvadrati[4].getizid() == self.kvadrati[8].getizid() == i or self.kvadrati[2].getizid() == self.kvadrati[4].getizid() == self.kvadrati[6].getizid() == i:
                 return i
+    
+def nova_igra():
+    kvadrati = []
+    for i in range(9):
+        kvadrati.append(Kvadrat())
+    return Igra(kvadrati)
             
 class KrizciKrozci:
     datoteka_s_stanjem = DATOTEKA_S_STANJEM
 
+    #zacnemo s praznim seznamom iger (ki je potem oblike {id igre: (igra, stanje)})
     def __init__(self):
         self.igre = {}
 
+    #zaporedna stevilka igre
     def prost_id_igre(self):
         if not self.igre:
             return 0
         else:
-            return max(self.igre.keys()) + 1
+            return int(max(self.igre.keys())) + 1
     
+    #nova igra se zapise v urejen par (igra, nedoloceno), kjer je igra "prazna" plosca kvadratov
     def nova_igra(self):
         i = self.prost_id_igre()
-        igra = self.nova_igra()
-        self.igre[i] = (igra, ZACETEK)
+        igra = nova_igra()
+        self.igre[i] = (igra, NEDOLOCENO)
         return i
     
+    #v trenutnem kvadratu (indeks od 0 do 8) izberemo polje (indeks od 0 do 8)
     def izberi_polje(self, i, polje):
         igra, stanje = self.igre[i]
-        stanje = igra.izberi(polje).odziv()
+        igra = igra.izberi(polje)
+        self.igre[i] = (igra, stanje)
+        
+    #racunalnik se odzove
+    def odziv_(self, i):
+        igra, stanje = self.igre[i]
+        igra = self.odziv()
         self.igre[i] = (igra, stanje)
 
     #najprej pretvorimo kvadrati v ustrezno obliko kvadrati_igre = [Kvadrat(), Kvadrat(),...], da je ustrezen atribut Igre
@@ -154,8 +163,8 @@ class KrizciKrozci:
         zapis = {}
         for id_igre, (igra, stanje) in self.igre.items():
             kvadrati = []
-            for i in igra.kvadrati:
-                kvadrati.append((igra.kvadrati[i].izid, igra.kvadrati[i].simboli))
+            for kvadrat in igra.kvadrati:
+                kvadrati.append((kvadrat.izid, kvadrat.simboli))
             zapis[id_igre] = (kvadrati, stanje)
         with open(self.datoteka_s_stanjem, "w") as d:
             json.dump(zapis, d)
