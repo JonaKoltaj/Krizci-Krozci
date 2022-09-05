@@ -1,57 +1,77 @@
 %rebase('base.tpl', title="KrizciKrozci")
-#nared tuki krajse pa si zorganiziri kvadrate (a more bit usak kvadrat posebi??)
+#nared tuki krajse pa si zorganiziri kvadrate (a more bit usak kvadrat posebi??) disable pa enable!!
+kvadrat = <table>
+  <tr>
+    <td>
+        <form action="" method="post"><button type="submit" name="move" value="0"></button></form>
+    </td>
+    <td>
+        <form action="" method="post"><button type="submit" name="move" value="1"></button></form>
+    </td>
+    <td>
+        <form action="" method="post"><button type="submit" name="move" value="2"></button></form>
+    </td>
+  </tr>
+  <tr>
+    <tr>
+    <td>
+        <form action="" method="post"><button type="submit" name="move" value="3"></button></form>
+    </td>
+    <td>
+        <form action="" method="post"><button type="submit" name="move" value="4"></button></form>
+    </td>
+    <td>
+        <form action="" method="post"><button type="submit" name="move" value="5"></button></form>
+    </td>
+  </tr>
+  <tr>
+    <tr>
+    <td>
+        <form action="" method="post"><button type="submit" name="move" value="6"></button></form>
+    </td>
+    <td>
+        <form action="" method="post"><button type="submit" name="move" value="7"></button></form>
+    </td>
+    <td>
+        <form action="" method="post"><button type="submit" name="move" value="8"></button></form>
+    </td>
+  </tr>
+</table>
+
 plosca = <table>
   <tr>
     <td>
-        <button type="submit" name="move" value="0">
-            kvadrat
-        </button>
+        kvadrat
     </td>
     <td>
-        <button type="submit" name="move" value="1">
-            kvadrat
-        </button>
+        kvadrat
     </td>
     <td>
-        <button type="submit" name="move" value="2">
-            kvadrat
-        </button>
+        kvadrat
     </td>
   </tr>
   <tr>
     <tr>
     <td>
-        <button type="submit" name="move" value="3">
-            kvadrat
-        </button>
+        kvadrat
     </td>
     <td>
-        <button type="submit" name="move" value="4">
-            kvadrat
-        </button>
+        kvadrat
     </td>
     <td>
-        <button type="submit" name="move" value="5">
-            kvadrat
-        </button>
+        kvadrat
     </td>
   </tr>
   <tr>
     <tr>
     <td>
-        <button type="submit" name="move" value="6">
-            kvadrat
-        </button>
+        kvadrat
     </td>
     <td>
-        <button type="submit" name="move" value="7">
-            kvadrat
-        </button>
+        kvadrat
     </td>
     <td>
-        <button type="submit" name="move" value="8">
-            kvadrat
-        </button>
+        kvadrat
     </td>
   </tr>
 </table>
@@ -59,7 +79,7 @@ plosca = <table>
 
 % if stanje != model.ZMAGA and stanje != model.PORAZ:
   <form action="" method="post">
-  <input name="crka" autofocus> <input type="submit" value="ugibaj">
+  <input name="move"> <input type="submit" value="izberi">
   </form>
 
 % elif stanje == model.ZMAGA:
@@ -69,7 +89,7 @@ plosca = <table>
   </form>
 
 % elif stanje == model.PORAZ:
-Več sreče prihodnjič, geslo je bilo <b>{{celo_geslo}}</b>.<br>
+Več sreče prihodnjič:(
 Bi želeli igrati še enkrat?
   <form action="/nova_igra/" method="post">
     <button type="submit">Nova igra</button>

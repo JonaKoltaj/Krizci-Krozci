@@ -93,7 +93,7 @@ class Igra:
         pass
     
     #izberes polje v trenutnem kvadatu
-    def igraj(self, kvadrat, polje):
+    def izberi(self, kvadrat, polje):
         self.kvadrati[kvadrat].izberi_polje(polje)
         
     #odziv racunalnika
@@ -119,7 +119,6 @@ class Igra:
 class KrizciKrozci:
     datoteka_s_stanjem = DATOTEKA_S_STANJEM
 
-    #placeholder bl k kej druzga
     def __init__(self):
         self.igre = {}
 
@@ -137,18 +136,26 @@ class KrizciKrozci:
     
     def izberi_polje(self, i, polje):
         igra, stanje = self.igre[i]
-        stanje = igra.igraj(polje).odziv()
+        stanje = igra.izberi(polje).odziv()
         self.igre[i] = (igra, stanje)
 
+    #najprej pretvorimo kvadrati v ustrezno obliko kvadrati_igre = [Kvadrat(), Kvadrat(),...], da je ustrezen atribut Igre
     def nalozi_igre_iz_datoteke(self):
         with open(self.datoteka_s_stanjem) as d:
             zapis = json.load(d)
-        for id_igre, ((geslo, crke), stanje) in zapis.items():
-            self.igre[id_igre] = (Igra(geslo, crke), stanje)
+        for id_igre, (kvadrati, stanje) in zapis.items():
+            kvadrati_igre =[]
+            for (izid, simboli) in kvadrati:
+                kvadrati_igre.append(Kvadrat(izid, simboli))
+            self.igre[id_igre] = (Igra(kvadrati_igre), stanje)
 
+    #zapis je slovar {id_igre: (kvadrati, stanje)}, kjer je kvadrati seznam parov[(izid, simboli)]
     def zapisi_igre_v_datoteko(self):
         zapis = {}
         for id_igre, (igra, stanje) in self.igre.items():
-            zapis[id_igre] = ((igra.kvadrati), stanje)
+            kvadrati = []
+            for i in igra.kvadrati:
+                kvadrati.append((igra.kvadrati[i].izid, igra.kvadrati[i].simboli))
+            zapis[id_igre] = (kvadrati, stanje)
         with open(self.datoteka_s_stanjem, "w") as d:
             json.dump(zapis, d)
