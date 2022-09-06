@@ -3,7 +3,7 @@ import random
 
 DATOTEKA_S_STANJEM = "stanje.json"
 
-NEOZNACENO = "n"
+NEOZNACENO = " "
 KRIZEC = "x"
 KROG = "o"
 ZMAGA = "w"
