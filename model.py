@@ -9,7 +9,7 @@ KROG = "o"
 ZMAGA = "w"
 PORAZ = "l"
 NEDOLOCENO = "nd"
-POLNO = "f"
+IZENACENO = "e"
 
 class Kvadrat:
     
@@ -108,6 +108,9 @@ class Igra:
         
     #odziv racunalnika
     def odziv(self):
+        #ce ne more nicesar izbrat se ne odzove
+        if len(self.prosti_kvadrati()) == 0:
+            return
         #ce je bil prejsni kvadrat poln (trenutni = None), izbere kateregakoli prostega
         if self.trenutni_kvadrat is None:
             kvadrat = random.choice(self.prosti_kvadrati())
@@ -141,6 +144,17 @@ class Igra:
             #diagonali
             if self.kvadrati[0].getizid() == self.kvadrati[4].getizid() == self.kvadrati[8].getizid() == i or self.kvadrati[2].getizid() == self.kvadrati[4].getizid() == self.kvadrati[6].getizid() == i:
                 return i
+        #ce je ze vse zapolnjeno, je izenaceno
+        if len(self.prosti_kvadrati()) == 0:
+            return IZENACENO
+        #ce so rezultati vseh kvadratov znani, a izid ni zmaga ali poraz
+        for i in range(9):
+            doloceni = []
+            if self.kvadrati[i].getizid == ZMAGA or self.kvadrati[i] == PORAZ or self.kvadrati[i].je_polno():
+                doloceni.append(i)
+        if len(doloceni) == 9:
+            return IZENACENO
+        
 
 #nova igra se zacne z 9 neizpolnjenimi kvadrati    
 def nova_igra():
