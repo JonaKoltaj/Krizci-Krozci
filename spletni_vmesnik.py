@@ -1,6 +1,6 @@
 import bottle, model
 
-SKRIVNOST = ":)"
+SKRIVNOST = "97edfa43843271c6a4146d888ba9696f"
 
 krizcikrozci = model.KrizciKrozci()
 krizcikrozci.nalozi_igre_iz_datoteke()

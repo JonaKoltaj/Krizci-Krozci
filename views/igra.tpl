@@ -48,21 +48,21 @@
 Čestitke, zmagali ste!
 Bi želeli igrati še enkrat?
   <form action="/nova_igra/" method="post">
-    <input type="submit" name="Nova Igra"></input>
+    <input type="submit" value="Nova Igra"></input>
   </form>
 
 % elif stanje == model.PORAZ:
 Več sreče prihodnjič:(
 Bi želeli igrati še enkrat?
   <form action="/nova_igra/" method="post">
-    <input type="submit" name="Nova Igra"></input>
+    <input type="submit" value="Nova Igra"></input>
   </form>
 
 %elif stanje == model.IZENACENO:
 Izenačeno!
 Bi želeli igrati še enkrat?
   <form action="/nova_igra/" method="post">
-    <input type="submit" name="Nova Igra"></input>
+    <input type="submit" value="Nova Igra"></input>
   </form>
 
 % end
