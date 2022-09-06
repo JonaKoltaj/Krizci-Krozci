@@ -17,7 +17,7 @@ class Kvadrat:
     #simboli je slovar {polje:simbol}, kjer je polje 0 do 8, simbol pa krizec/krog/neoznaceno
     def __init__(self, izid=None, simboli=None):
         if simboli is None:
-            self.simboli = []
+            self.simboli = {}
             for i in range(9):
                 self.simboli[i] = NEOZNACENO
         else:
@@ -44,6 +44,7 @@ class Kvadrat:
     def odziv(self):
         polje = random.choice(self.nezasedena_polja())
         self.simboli[polje] = KROG
+        return polje
         
     #preverimo najprej ce use ujema ksna od vrstic, pol ksn od stolpcev, pol ksn na diagonali
     def getizid(self):
@@ -68,15 +69,16 @@ class Kvadrat:
 
     #preverimo, ce je ze use zasedeno
     def je_polno(self):
-        polno = 0
-        if self.nezasedena_polja() == []:
-            spolno += 1
+        polno = False
+        if len(self.nezasedena_polja()) == 0:
+            polno = True
         return polno
 
 
 class Igra:
 
     #kvadrati je seznam 9 kvadratov (po vrsti), zacnemo z praznimi kvadrati
+    #trenutni kvadrat rabimo za disableanje in enableanje gumbov
     def __init__(self, kvadrati=None, trenutni_kvadrat=None):
         if kvadrati is None:
             self.kvadrati = []
@@ -86,13 +88,44 @@ class Igra:
             self.kvadrati = kvadrati
         self.trenutni_kvadrat = trenutni_kvadrat
     
+    #poiscemo use nezapolnjene kvadrate    
+    def prosti_kvadrati(self):
+        prosti = []
+        for i in range(9):
+            if not self.kvadrati[i].je_polno():
+                prosti.append(i)
+        return prosti
+    
     #izberes polje v trenutnem kvadatu
-    def izberi(self, polje):
-        self.kvadrati[self.trenutni_kvadrat].izberi_polje(polje)
+    def izberi(self, kvadrat, polje):
+        self.kvadrati[kvadrat].izberi_polje(polje)
+        #spremeni se trenutni kvadrat, ce je poln je enak None
+        self.trenutni_kvadrat = polje
+        if self.kvadrati[self.trenutni_kvadrat].je_polno():
+            self.trenutni_kvadrat = None
+        #preverimo ce je bil kvadrat zmagan/zgubljen
+        self.kvadrati[kvadrat].getizid()
         
     #odziv racunalnika
     def odziv(self):
-        self.kvadrati[self.trenutni_kvadrat].odziv()
+        #ce je bil prejsni kvadrat poln (trenutni = None), izbere kateregakoli prostega
+        if self.trenutni_kvadrat is None:
+            kvadrat = random.choice(self.prosti_kvadrati())
+            polje = self.kvadrati[kvadrat].odziv()
+            #spremeni trenutni kvadrat
+            self.trenutni_kvadrat = polje
+            #preverimo ce je bil kvadrat zmagan/zgubljen
+            self.kvadrati[kvadrat].getizid()
+        else:
+            polje = self.kvadrati[self.trenutni_kvadrat].odziv()
+            #spremeni trenutni kvadrat
+            self.trenutni_kvadrat = polje
+            #preverimo ce je bil kvadrat zmagan/zgubljen
+            self.kvadrati[self.trenutni_kvadrat].getizid()
+        #ce je trenutni kvadrat poln, ga spremeni na None
+        if self.kvadrati[self.trenutni_kvadrat].je_polno():
+            self.trenutni_kvadrat = None
+        
 
     #izid celotne igre
     def izid(self):
@@ -108,7 +141,8 @@ class Igra:
             #diagonali
             if self.kvadrati[0].getizid() == self.kvadrati[4].getizid() == self.kvadrati[8].getizid() == i or self.kvadrati[2].getizid() == self.kvadrati[4].getizid() == self.kvadrati[6].getizid() == i:
                 return i
-    
+
+#nova igra se zacne z 9 neizpolnjenimi kvadrati    
 def nova_igra():
     kvadrati = []
     for i in range(9):
@@ -127,7 +161,7 @@ class KrizciKrozci:
         if not self.igre:
             return 0
         else:
-            return int(max(self.igre.keys())) + 1
+            return max(self.igre.keys()) + 1
     
     #nova igra se zapise v urejen par (igra, nedoloceno), kjer je igra "prazna" plosca kvadratov
     def nova_igra(self):
@@ -136,16 +170,20 @@ class KrizciKrozci:
         self.igre[i] = (igra, NEDOLOCENO)
         return i
     
-    #v trenutnem kvadratu (indeks od 0 do 8) izberemo polje (indeks od 0 do 8)
-    def izberi_polje(self, i, polje):
+    #v kvadratu (indeks od 0 do 8) izberemo polje (indeks od 0 do 8)
+    #pogledamo ce se spremeni izid
+    def izberi_polje(self, i, kvadrat, polje):
         igra, stanje = self.igre[i]
-        igra = igra.izberi(polje)
+        igra.izberi(kvadrat, polje)
+        stanje = igra.izid()
         self.igre[i] = (igra, stanje)
         
     #racunalnik se odzove
-    def odziv_(self, i):
+    #pogledamo ce se spremeni izid
+    def odziv(self, i):
         igra, stanje = self.igre[i]
-        igra = self.odziv()
+        igra.odziv()
+        stanje = igra.izid()
         self.igre[i] = (igra, stanje)
 
     #najprej pretvorimo kvadrati v ustrezno obliko kvadrati_igre = [Kvadrat(), Kvadrat(),...], da je ustrezen atribut Igre
@@ -156,7 +194,7 @@ class KrizciKrozci:
             kvadrati_igre =[]
             for (izid, simboli) in kvadrati:
                 kvadrati_igre.append(Kvadrat(izid, simboli))
-            self.igre[id_igre] = (Igra(kvadrati_igre), stanje)
+            self.igre[int(id_igre)] = (Igra(kvadrati_igre), stanje)
 
     #zapis je slovar {id_igre: (kvadrati, stanje)}, kjer je kvadrati seznam parov[(izid, simboli)]
     def zapisi_igre_v_datoteko(self):
