@@ -43,5 +43,8 @@ def izberi():
     krizcikrozci.zapisi_igre_v_datoteko()
     return bottle.redirect("/igra/")
 
+@bottle.get("/img/<picture>")
+def slike(picture):
+    return bottle.static_file(picture, root="img")
 
 bottle.run(reloader=True, debug=True)
