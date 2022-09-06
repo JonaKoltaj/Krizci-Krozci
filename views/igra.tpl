@@ -13,9 +13,15 @@
                     <tr>
                         %for stolpec in range(3):
                         <td>
-                            <input type="submit" name="move" value="{{Vrstica}},{{Stolpec}},{{vrstica}},{{stolpec}}">
+                            <button type="submit" name="move" value="{{Vrstica}},{{Stolpec}},{{vrstica}},{{stolpec}}"
+                            %if 3*Vrstica + Stolpec != igra.trenutni_kvadrat and igra.trenutni_kvadrat is not None:
+                            disabled
+                            %elif 3*vrstica + stolpec not in igra.kvadrati[3*Vrstica + Stolpec].nezasedena_polja():
+                            disabled
+                            %end
+                            >
                             {{igra.kvadrati[3*Vrstica + Stolpec].simboli[3*vrstica + stolpec]}}
-                            </input>
+                            </button>
                         </td>
                         %end
                     </tr>
@@ -26,7 +32,7 @@
         </tr>
         %end
     </table>
-</form>
+  </form>
 
 % elif stanje == model.ZMAGA:
 Čestitke, zmagali ste! Bi želeli igrati še enkrat?
